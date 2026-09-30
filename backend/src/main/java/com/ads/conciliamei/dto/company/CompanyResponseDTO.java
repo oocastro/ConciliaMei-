@@ -1,6 +1,6 @@
-package com.ads.conciliamei.dto.empresa;
+package com.ads.conciliamei.dto.company;
 
-public record EmpresaConsultaResponseDTO(
+public record CompanyResponseDTO(
         String cnpj,
         String razaoSocial,
         String nomeFantasia,

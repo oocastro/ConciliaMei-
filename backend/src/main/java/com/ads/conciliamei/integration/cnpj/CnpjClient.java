@@ -1,7 +1,7 @@
 package com.ads.conciliamei.integration.cnpj;
 
-import com.ads.conciliamei.exception.CnpjConsultaIndisponivelException;
-import com.ads.conciliamei.exception.CnpjNaoEncontradoException;
+import com.ads.conciliamei.exception.UnavailableCnpjQueryException;
+import com.ads.conciliamei.exception.CnpjNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -23,13 +23,13 @@ public class CnpjClient {
         try {
             return restTemplate.getForObject(BRASIL_API_URL, CnpjApiResponse.class, cnpj);
         } catch (HttpClientErrorException.NotFound e) {
-            throw new CnpjNaoEncontradoException(
+            throw new CnpjNotFoundException(
                     "Não encontramos uma empresa com esse CNPJ.");
         } catch (ResourceAccessException e) {
-            throw new CnpjConsultaIndisponivelException(
+            throw new UnavailableCnpjQueryException(
                     "Não foi possível consultar o CNPJ no momento. Tente novamente.");
         } catch (RestClientException e) {
-            throw new CnpjConsultaIndisponivelException(
+            throw new UnavailableCnpjQueryException(
                     "Erro ao consultar o CNPJ. Tente novamente em instantes.");
         }
     }

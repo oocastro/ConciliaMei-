@@ -2,8 +2,8 @@ package com.ads.conciliamei.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CnpjValidatorTest {
 
@@ -13,12 +13,12 @@ class CnpjValidatorTest {
     }
 
     @Test
-    void deveRejeitarCnpjComDigitosErrados() {
+    void deveRejeitarCnpjComDigitosErdos() {
         assertFalse(CnpjValidator.isValid("11.222.333/0001-99"));
     }
 
     @Test
-    void deveRejeitarCnpjComSequenciaRepetida() {
+    void deveRejeitarCnpjComSequenciaRepetitive() {
         assertFalse(CnpjValidator.isValid("11111111111111"));
     }
 

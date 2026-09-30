@@ -1,9 +1,6 @@
 package com.ads.conciliamei.controller;
 
-import com.ads.conciliamei.exception.CnpjConsultaIndisponivelException;
-import com.ads.conciliamei.exception.CnpjInvalidoException;
-import com.ads.conciliamei.exception.CnpjNaoEncontradoException;
-import com.ads.conciliamei.exception.CnpjSituacaoIncompativelException;
+import com.ads.conciliamei.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,23 +28,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(erros);
     }
 
-    @ExceptionHandler(CnpjInvalidoException.class)
-    public ResponseEntity<Map<String, String>> handleCnpjInvalido(CnpjInvalidoException ex) {
+    @ExceptionHandler(InvalidCnpjException.class)
+    public ResponseEntity<Map<String, String>> handleCnpjInvalido(InvalidCnpjException ex) {
         return ResponseEntity.badRequest().body(Map.of("erro", ex.getMessage()));
     }
 
-    @ExceptionHandler(CnpjNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handleCnpjNaoEncontrado(CnpjNaoEncontradoException ex) {
+    @ExceptionHandler(CnpjNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCnpjNaoEncontrado(CnpjNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
     }
 
-    @ExceptionHandler(CnpjSituacaoIncompativelException.class)
-    public ResponseEntity<Map<String, String>> handleSituacaoIncompativel(CnpjSituacaoIncompativelException ex) {
+    @ExceptionHandler(IncompatibleCnpjStatusException.class)
+    public ResponseEntity<Map<String, String>> handleSituacaoIncompativel(IncompatibleCnpjStatusException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("erro", ex.getMessage()));
     }
 
-    @ExceptionHandler(CnpjConsultaIndisponivelException.class)
-    public ResponseEntity<Map<String, String>> handleIndisponivel(CnpjConsultaIndisponivelException ex) {
+    @ExceptionHandler(UnavailableCnpjQueryException.class)
+    public ResponseEntity<Map<String, String>> handleIndisponivel(UnavailableCnpjQueryException ex) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CnpjAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleCnpjJaCadastrado(CnpjAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CompanyAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleEmpresaJaCadastrada(CompanyAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEmpresaNaoEncontrada(CompanyNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
     }
 }

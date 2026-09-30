@@ -1,8 +1,8 @@
 package com.ads.conciliamei.service;
 
-import com.ads.conciliamei.dto.empresa.EmpresaConsultaResponseDTO;
-import com.ads.conciliamei.exception.CnpjInvalidoException;
-import com.ads.conciliamei.exception.CnpjSituacaoIncompativelException;
+import com.ads.conciliamei.dto.company.CompanyResponseDTO;
+import com.ads.conciliamei.exception.InvalidCnpjException;
+import com.ads.conciliamei.exception.IncompatibleCnpjStatusException;
 import com.ads.conciliamei.integration.cnpj.CnpjApiResponse;
 import com.ads.conciliamei.integration.cnpj.CnpjClient;
 import com.ads.conciliamei.util.CnpjValidator;
@@ -17,16 +17,16 @@ public class CnpjService {
         this.cnpjClient = cnpjClient;
     }
 
-    public EmpresaConsultaResponseDTO consultar(String cnpj) {
+    public CompanyResponseDTO consultar(String cnpj) {
         if (!CnpjValidator.isValid(cnpj)) {
-            throw new CnpjInvalidoException("CNPJ inválido. Verifique os números informados.");
+            throw new InvalidCnpjException("CNPJ inválido. Verifique os números informados.");
         }
 
         String cnpjLimpo = cnpj.replaceAll("[^0-9]", "");
         CnpjApiResponse resposta = cnpjClient.consultar(cnpjLimpo);
 
         if (!"ATIVA".equalsIgnoreCase(resposta.situacaoCadastral())) {
-            throw new CnpjSituacaoIncompativelException(
+            throw new IncompatibleCnpjStatusException(
                     "Não é possível concluir o cadastro: situação cadastral '"
                             + resposta.situacaoCadastral() + "'.");
         }
@@ -34,12 +34,12 @@ public class CnpjService {
         return toConsultaResponse(resposta);
     }
 
-    private EmpresaConsultaResponseDTO toConsultaResponse(CnpjApiResponse r) {
+    private CompanyResponseDTO toConsultaResponse(CnpjApiResponse r) {
         String endereco = r.logradouro() != null
                 ? r.logradouro() + ", " + r.numero()
                 : null;
 
-        return new EmpresaConsultaResponseDTO(
+        return new CompanyResponseDTO(
                 r.cnpj(), r.razaoSocial(), r.nomeFantasia(), r.atividadePrincipal(),
                 r.situacaoCadastral(), endereco, r.municipio(), r.uf(),
                 r.cep(), r.email(), r.telefone()
