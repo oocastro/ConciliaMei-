@@ -1,0 +1,7 @@
+[build]
+
+  base = "app-front"
+  command = "npm run build"
+  publish = "dist" 
+
+# Dependencias do netlify
