@@ -8,6 +8,7 @@ import AuthLayout, {
     GoogleButton
 } from '../../components/layout/AuthLayout';
 import LGPDPopup from '@/components/LGPDPopup'; // LGPD
+import { hasAcceptedLGPD } from '@/lib/lgpd'; // LGPD
 import { login } from "../../api/authApi";
 
 export default function LoginPage() {
@@ -18,10 +19,19 @@ export default function LoginPage() {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
 
+    // LGPD: muda a key pra remontar o popup quando o login é barrado
+    const [lgpdKey, setLgpdKey] = useState(0);
+
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
+
+        // LGPD: sem aceite, não loga
+        if (!hasAcceptedLGPD()) {
+            setLgpdKey((k) => k + 1);
+            return;
+        }
 
         setErro("");
         setCarregando(true);
@@ -41,7 +51,6 @@ export default function LoginPage() {
         }
     }
 
-
     return (
         <AuthLayout
             title="Bem-vindo!"
@@ -54,14 +63,14 @@ export default function LoginPage() {
             }
         >
             <form className="auth-form" onSubmit={handleSubmit}>
-                <AuthField 
-                    id="login-email" 
-                    label="E-mail" 
-                    icon={Mail} 
-                    type="email" 
-                    placeholder="seu@email.com" 
-                    autoComplete="email" 
-                    required 
+                <AuthField
+                    id="login-email"
+                    label="E-mail"
+                    icon={Mail}
+                    type="email"
+                    placeholder="seu@email.com"
+                    autoComplete="email"
+                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
@@ -76,14 +85,14 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     trailing={
-                        <button 
-                            className="password-toggle" 
-                            type="button" 
-                            onClick={() => setShowPassword(!showPassword)} 
+                        <button
+                            className="password-toggle"
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
                             aria-label={
-                                showPassword 
-                                ? 'Ocultar senha' 
-                                : 'Mostrar senha'
+                                showPassword
+                                    ? 'Ocultar senha'
+                                    : 'Mostrar senha'
                             }
                         >
                             {showPassword ? <EyeOff /> : <Eye />}
@@ -127,7 +136,7 @@ export default function LoginPage() {
             </GoogleButton>
             <Link className="auth-login-link" to="/auth/signin">Criar uma conta</Link>
 
-            <LGPDPopup /> {/* LGPD */}
+            <LGPDPopup key={lgpdKey} /> {/* LGPD */}
         </AuthLayout>
     );
 }
