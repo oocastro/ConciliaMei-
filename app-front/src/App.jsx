@@ -10,7 +10,7 @@ import RegisterPage from './pages/auth/RegisterPage';
 import RegisterCompany from './pages/auth/RegisterCompany';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
-
+import SettingsPage from './pages/settings/SettingsPage';
 function App() {
   // TODO: trocar pelo usuário do login (JWT), no formato { name, cnpj }
 return (
@@ -30,6 +30,7 @@ return (
           <Route path="/notas" element={<NotasFiscais />} />
           <Route path="/conciliacao" element={<Conciliacao />} />
           <Route path="/pagamentos" element={<Pagamentos />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
