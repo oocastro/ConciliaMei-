@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ArrowRight, Building2 } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import AuthLayout, { AuthField, AuthNotice } from "../../components/layout/AuthLayout";
-import { consultCnpj, SessionExpiredError } from "../../api/companyApi";
-import { formatCnpj, isValidCnpj, onlyDigits } from "../../lib/cnpj";
+import AuthLayout, { AuthField, AuthNotice } from "../../../components/layout/AuthLayout";
+import { consultCnpj, SessionExpiredError } from "../../../api/companyApi";
+import { formatCnpj, isValidCnpj, onlyDigits } from "../../../lib/cnpj";
 
 // Passo 1 do cadastro da empresa: o usuário informa só o CNPJ.
 // O sistema valida, consulta os dados e leva para a tela de confirmação.

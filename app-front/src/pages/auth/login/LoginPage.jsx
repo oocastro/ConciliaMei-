@@ -6,10 +6,10 @@ import AuthLayout, {
     AuthField,
     AuthNotice,
     GoogleButton
-} from '../../components/layout/AuthLayout';
+} from '../../../components/layout/AuthLayout';
 import LGPDPopup from '@/components/LGPDPopup'; // LGPD
 import { hasAcceptedLGPD } from '@/lib/lgpd'; // LGPD
-import { login } from "../../api/authApi";
+import { login } from "../../../api/authApi";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");

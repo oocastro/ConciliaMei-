@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AuthLayout, { AuthField, AuthNotice } from '../../components/layout/AuthLayout';
+import AuthLayout, { AuthField, AuthNotice } from "../../../components/layout/AuthLayout";
 
 const MIN_PASSWORD_LENGTH = 8;
 

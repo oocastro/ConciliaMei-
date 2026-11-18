@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import AuthLayout, { AuthNotice } from "../../components/AuthLayout";
-import { registerCompany, SessionExpiredError } from "../../api/companyApi";
-import { formatCnpj } from "../../lib/cnpj";
+import AuthLayout, { AuthNotice } from "../../../components/layout/AuthLayout";
+import { registerCompany, SessionExpiredError } from "../../../api/companyApi";
+import { formatCnpj } from "../../../lib/cnpj";
 
 // Passo 2 do cadastro da empresa: o usuário confere os dados encontrados e confirma.
 export default function CompanyConfirmation() {
