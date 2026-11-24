@@ -1,0 +1,93 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependências
+node_modules/
+jspm_packages/
+bower_components/
+web_modules/
+
+# Builds e arquivos gerados
+dist/
+dist-ssr/
+build/
+.next/
+.nuxt/
+out/
+.vuepress/dist
+.serverless/
+coverage/
+lib-cov
+.nyc_output
+*.lcov
+target/
+certs/
+
+# Caches
+.cache/
+.parcel-cache/
+.npm
+.eslintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.grunt
+.fusebox/
+.dynamodb/
+.node_repl_history
+.tern-port
+.vscode-test
+*.tsbuildinfo
+
+# Yarn / pnpm
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+
+# Arquivos locais
+*.local
+*.rar
+*.tgz
+
+# Editores e IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Outros
+.lock-wscript
+# Permitir modelo de configuração
+!.env.example
