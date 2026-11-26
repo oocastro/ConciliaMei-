@@ -1,9 +1,12 @@
+
 import { z } from "zod";
 
 export const registerSchema = z.object({
     name: z.string().trim().min(2, "Nome muito curto").max(255),
     email: z.string().trim().email("E-mail inválido").max(255),
-    password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres").max(72),
+    password: z.string()
+        .min(8, "A senha deve ter pelo menos 8 caracteres")
+        .max(72),
 });
 
 export const loginSchema = z.object({
@@ -27,4 +30,8 @@ export const resetPasswordSchema = z.object({
     password: z.string()
         .min(8, "A senha deve ter pelo menos 8 caracteres")
         .max(72, "A senha é muito longa"),
+});
+
+export const deleteAccountSchema = z.object({
+    currentPassword: z.string().min(1, "Informe sua senha atual."),
 });

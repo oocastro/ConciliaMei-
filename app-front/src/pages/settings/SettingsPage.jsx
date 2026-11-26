@@ -1,4 +1,4 @@
-import { changePassword as changePasswordApi } from "@/api/authApi";
+import { changePassword as changePasswordApi, deleteAccount as deleteAccountApi } from "@/api/authApi";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Info, Landmark, LogOut, Pencil, Plus, ShieldCheck, SlidersHorizontal, Tags, Trash2, User } from "lucide-react";
@@ -110,6 +110,8 @@ export default function SettingsPage({
     const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
     const [prefs, setPrefs] = useState({ defaultPeriod: "month", hideValues: false, ...preferences });
     const [confirmingDeletion, setConfirmingDeletion] = useState(false);
+    const [deletionPassword, setDeletionPassword] = useState("");
+    const [deletingAccount, setDeletingAccount] = useState(false);
 
     const userName = user?.name || localStorage.getItem("name");
 
@@ -157,7 +159,37 @@ export default function SettingsPage({
     function handleLogout() {
         localStorage.removeItem("token");
         localStorage.removeItem("name");
+        localStorage.removeItem("user");
         navigate("/auth/login", { replace: true });
+    }
+
+    async function handleDeleteAccount(e) {
+        e.preventDefault();
+
+        if (!deletionPassword) {
+            setFeedback({ ok: "", error: "Informe sua senha atual para confirmar a exclusão." });
+            return;
+        }
+
+        setDeletingAccount(true);
+        setFeedback({ ok: "", error: "" });
+
+        try {
+            await deleteAccountApi(deletionPassword);
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("name");
+            localStorage.removeItem("user");
+
+            navigate("/auth/login", { replace: true });
+        } catch (err) {
+            setFeedback({
+                ok: "",
+                error: err?.message || "Não foi possível excluir sua conta.",
+            });
+        } finally {
+            setDeletingAccount(false);
+        }
     }
 
     const bindPwd = (key) => ({
@@ -466,54 +498,76 @@ export default function SettingsPage({
                         {/* Exclusão de conta */}
                         <div className="grid gap-3 border-t pt-5">
                             <div>
-                            <h3 className="font-semibold">Excluir conta e dados</h3>
+                                <h3 className="font-semibold">Excluir conta e dados</h3>
 
-                            <p className="text-muted-foreground">
-                                Você pode solicitar a exclusão da sua conta e dos dados
-                                financeiros associados a ela, conforme as condições
-                                aplicáveis e a legislação vigente.
-                            </p>
+                                <p className="text-muted-foreground">
+                                    Esta ação é permanente. Para confirmar a exclusão,
+                                    informe sua senha atual. Você será desconectado após
+                                    a conclusão da operação.
+                                </p>
                             </div>
 
                             {confirmingDeletion ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                                <Button
-                                type="button"
-                                variant="destructive"
-                                disabled={!onRequestDeletion}
-                                onClick={() =>
-                                    run(
-                                    onRequestDeletion,
-                                    "Solicitação de exclusão enviada"
-                                    )
-                                }
-                                >
-                                Confirmar solicitação
-                                </Button>
+                                <form onSubmit={handleDeleteAccount} className="grid max-w-md gap-3">
+                                    <Field
+                                        id="senhaExcluirConta"
+                                        label="Senha atual"
+                                        hint="Confirme sua identidade para excluir a conta."
+                                    >
+                                        <Input
+                                            id="senhaExcluirConta"
+                                            type="password"
+                                            autoComplete="current-password"
+                                            value={deletionPassword}
+                                            onChange={(e) => {
+                                                setDeletionPassword(e.target.value);
+                                                setFeedback({ ok: "", error: "" });
+                                            }}
+                                            disabled={deletingAccount}
+                                        />
+                                    </Field>
 
-                                <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setConfirmingDeletion(false)}
-                                >
-                                Cancelar
-                                </Button>
-                            </div>
+                                    <Feedback />
+
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Button
+                                            type="submit"
+                                            variant="destructive"
+                                            disabled={deletingAccount || !deletionPassword}
+                                        >
+                                            <Trash2 />
+                                            {deletingAccount ? "Excluindo..." : "Confirmar exclusão"}
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            disabled={deletingAccount}
+                                            onClick={() => {
+                                                setConfirmingDeletion(false);
+                                                setDeletionPassword("");
+                                                setFeedback({ ok: "", error: "" });
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </div>
+                                </form>
                             ) : (
-                            <div>
-                                <Button
-                                type="button"
-                                variant="outline"
-                                disabled={!onRequestDeletion}
-                                onClick={() => setConfirmingDeletion(true)}
-                                >
-                                <Trash2 />
-                                Solicitar exclusão
-                                </Button>
-                            </div>
+                                <div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setConfirmingDeletion(true);
+                                            setFeedback({ ok: "", error: "" });
+                                        }}
+                                    >
+                                        <Trash2 />
+                                        Excluir minha conta
+                                    </Button>
+                                </div>
                             )}
-
-                            <Feedback />
                         </div>
                         </div>
                     </SectionCard>

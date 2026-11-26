@@ -1,3 +1,4 @@
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
@@ -93,7 +94,10 @@ export async function findUserById(id) {
     return users[0] || null;
 }
 
-export async function changeUserPassword(userId, { currentPassword, newPassword }) {
+export async function changeUserPassword(userId, {
+    currentPassword,
+    newPassword,
+}) {
     const [users] = await pool.execute(
         "SELECT id, password FROM users WHERE id = ?",
         [userId]
@@ -132,6 +136,72 @@ export async function changeUserPassword(userId, { currentPassword, newPassword 
     );
 
     return true;
+}
+
+// ---------------------------------------------------------------------------
+// Exclusão definitiva da conta
+// ---------------------------------------------------------------------------
+
+export async function deleteUserAccount(userId, { currentPassword }) {
+    // Garante que a tabela de recuperação exista antes da exclusão.
+    await ensureResetTable();
+
+    const connection = await pool.getConnection();
+    let transactionStarted = false;
+
+    try {
+        await connection.beginTransaction();
+        transactionStarted = true;
+
+        const [users] = await connection.execute(
+            "SELECT id, password FROM users WHERE id = ? FOR UPDATE",
+            [userId]
+        );
+
+        const user = users[0];
+
+        if (!user) {
+            const error = new Error("Usuário não encontrado.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const passwordMatches = await bcrypt.compare(
+            currentPassword,
+            user.password
+        );
+
+        if (!passwordMatches) {
+            const error = new Error("A senha atual está incorreta.");
+            error.statusCode = 400;
+            throw error;
+        }
+
+        // Remove os tokens de recuperação vinculados à conta.
+        await connection.execute(
+            "DELETE FROM password_reset_tokens WHERE user_id = ?",
+            [userId]
+        );
+
+        // Remove a conta do usuário.
+        await connection.execute(
+            "DELETE FROM users WHERE id = ?",
+            [userId]
+        );
+
+        await connection.commit();
+        transactionStarted = false;
+
+        return true;
+    } catch (error) {
+        if (transactionStarted) {
+            await connection.rollback();
+        }
+
+        throw error;
+    } finally {
+        connection.release();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -215,26 +285,34 @@ export async function resetPasswordWithToken({ token, password }) {
     await ensureResetTable();
 
     const invalidLink = () => {
-        const error = new Error("Link inválido ou expirado. Solicite um novo link de recuperação.");
+        const error = new Error(
+            "Link inválido ou expirado. Solicite um novo link de recuperação."
+        );
         error.statusCode = 400;
         return error;
     };
 
     const connection = await pool.getConnection();
+    let transactionStarted = false;
 
     try {
         await connection.beginTransaction();
+        transactionStarted = true;
 
         const [rows] = await connection.execute(
             `SELECT id, user_id FROM password_reset_tokens
-             WHERE token_hash = ? AND used_at IS NULL AND expires_at > UTC_TIMESTAMP()
+             WHERE token_hash = ?
+               AND used_at IS NULL
+               AND expires_at > UTC_TIMESTAMP()
              FOR UPDATE`,
             [hashResetToken(token)]
         );
 
         const record = rows[0];
 
-        if (!record) throw invalidLink();
+        if (!record) {
+            throw invalidLink();
+        }
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -255,8 +333,12 @@ export async function resetPasswordWithToken({ token, password }) {
         );
 
         await connection.commit();
+        transactionStarted = false;
     } catch (error) {
-        await connection.rollback();
+        if (transactionStarted) {
+            await connection.rollback();
+        }
+
         throw error;
     } finally {
         connection.release();

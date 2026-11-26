@@ -1,3 +1,4 @@
+
 import {
     registerUser,
     loginUser,
@@ -5,6 +6,7 @@ import {
     changeUserPassword,
     requestPasswordReset,
     resetPasswordWithToken,
+    deleteUserAccount,
 } from "../services/auth.service.js";
 
 import {
@@ -13,6 +15,7 @@ import {
     changePasswordSchema,
     forgotPasswordSchema,
     resetPasswordSchema,
+    deleteAccountSchema,
 } from "../validators/auth.validator.js";
 
 export async function register(req, res) {
@@ -42,7 +45,9 @@ export async function register(req, res) {
 
         return res.status(error.status || 500).json({
             status: "error",
-            message: error.status ? error.message : "Erro ao cadastrar usuário.",
+            message: error.status
+                ? error.message
+                : "Erro ao cadastrar usuário.",
         });
     }
 }
@@ -74,7 +79,9 @@ export async function login(req, res) {
 
         return res.status(error.status || 500).json({
             status: "error",
-            message: error.status ? error.message : "Erro ao realizar login.",
+            message: error.status
+                ? error.message
+                : "Erro ao realizar login.",
         });
     }
 }
@@ -143,7 +150,7 @@ export async function forgotPassword(req, res) {
         });
     }
 
-    // Resposta neutra e imediata: não revela se o e-mail existe nem o tempo de envio.
+    // Resposta neutra: não revela se o e-mail existe.
     res.status(200).json({
         status: "success",
         message: "Se o e-mail estiver cadastrado, enviaremos um link para redefinir sua senha.",
@@ -181,6 +188,39 @@ export async function resetPassword(req, res) {
             message: error.statusCode
                 ? error.message
                 : "Não foi possível redefinir sua senha.",
+        });
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Exclusão definitiva da conta
+// ---------------------------------------------------------------------------
+
+export async function deleteAccount(req, res) {
+    const validation = deleteAccountSchema.safeParse(req.body);
+
+    if (!validation.success) {
+        return res.status(400).json({
+            status: "error",
+            message: validation.error.issues[0].message,
+        });
+    }
+
+    try {
+        await deleteUserAccount(req.userId, validation.data);
+
+        return res.status(200).json({
+            status: "success",
+            message: "Sua conta foi excluída com sucesso.",
+        });
+    } catch (error) {
+        console.error("Erro ao excluir conta:", error);
+
+        return res.status(error.statusCode || 500).json({
+            status: "error",
+            message: error.statusCode
+                ? error.message
+                : "Não foi possível excluir sua conta.",
         });
     }
 }

@@ -96,3 +96,22 @@ export async function resetPassword(token, password) {
 
     return tratarResposta(response);
 }
+
+export async function deleteAccount(currentPassword) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+
+    const response = await fetch(`${API_URL}/delete-account`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword }),
+    });
+
+    return tratarResposta(response);
+}
